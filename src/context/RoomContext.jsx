@@ -5,7 +5,8 @@ import Peer from "peerjs"
 import { v4 as uuidV4 } from "uuid"
 import { peersReducer } from "./peerReducer";
 import { addPeerAction, removePeerAction } from "./peerActions"
-const WS = "http://localhost:4000"
+import { SOCKET_URL } from "../config-global";
+const WS = SOCKET_URL
 export const RoomContext = createContext(null)
 
 const ws = socketIO(WS)
