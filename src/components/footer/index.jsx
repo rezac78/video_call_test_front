@@ -1,19 +1,32 @@
 import { PhoneIcon } from "../../../public/Phone";
 import { ChatIcon } from "../../../public/ChatIcon";
+import MicOnIcon from "../../../public/MicOn";
+import MicOffIcon from "../../../public/MicOff";
 import useCurrentTime from "../../utils/useCurrentTime";
 import PropTypes from "prop-types";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { RoomContext } from "../../context/RoomContext";
+import ScreenIcon from "../../../public/Screen";
 
 function Footer({ handleButton, IdUsers }) {
   const time = useCurrentTime();
-  const { ws } = useContext(RoomContext);
+  const { ws, stream } = useContext(RoomContext);
+  const [isMicOn, setIsMicOn] = useState(true);
 
   const handleEndCall = () => {
-    console.log('End Call Button Clicked, Request ID:', IdUsers);
+    console.log("End Call Button Clicked, Request ID:", IdUsers);
     ws.emit("delete-call-request", IdUsers);
   };
 
+  const toggleMic = () => {
+    if (stream) {
+      const audioTrack = stream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled; 
+        setIsMicOn(audioTrack.enabled);
+      }
+    }
+  };
 
   return (
     <div>
@@ -23,9 +36,24 @@ function Footer({ handleButton, IdUsers }) {
             {time} | {IdUsers}
           </p>
         </div>
-        <div className="flex justify-center flex-1 mb-4 sm:mb-0">
-          <button className="px-6 py-2 rounded-full bg-[#EA4335]" onClick={handleEndCall}>
+        <div className="flex justify-center gap-x-3 flex-1 mb-4 sm:mb-0">
+          <button
+            className={`px-2 py-2 rounded-full bg-[#363637]`}
+            onClick={toggleMic}
+          >
+            {isMicOn ? <MicOnIcon /> : <MicOffIcon />}
+          </button>
+          <button
+            className="px-4 py-2 rounded-full bg-[#EA4335]"
+            onClick={handleEndCall}
+          >
             <PhoneIcon />
+          </button>
+          <button
+            className="px-2 py-2 rounded-full bg-[#363637]"
+            onClick={handleEndCall}
+          >
+            <ScreenIcon />
           </button>
         </div>
         <div className="flex space-x-2 flex-1 justify-end">
@@ -42,4 +70,5 @@ Footer.propTypes = {
   IdUsers: PropTypes.string.isRequired,
   handleButton: PropTypes.func.isRequired,
 };
+
 export default Footer;
