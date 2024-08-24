@@ -10,7 +10,7 @@ import ScreenIcon from "../../../public/Screen";
 
 function Footer({ handleButton, IdUsers }) {
   const time = useCurrentTime();
-  const { ws, stream } = useContext(RoomContext);
+  const { ws, stream, shareScreen, screenSharingId } = useContext(RoomContext);
   const [isMicOn, setIsMicOn] = useState(true);
 
   const handleEndCall = () => {
@@ -22,12 +22,12 @@ function Footer({ handleButton, IdUsers }) {
     if (stream) {
       const audioTrack = stream.getAudioTracks()[0];
       if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled; 
+        audioTrack.enabled = !audioTrack.enabled;
         setIsMicOn(audioTrack.enabled);
       }
     }
   };
-
+  console.log({ screenSharingId });
   return (
     <div>
       <footer className="bg-[#202124] text-white flex flex-col sm:flex-row justify-between items-center p-4">
@@ -51,7 +51,7 @@ function Footer({ handleButton, IdUsers }) {
           </button>
           <button
             className="px-2 py-2 rounded-full bg-[#363637]"
-            onClick={handleEndCall}
+            onClick={shareScreen}
           >
             <ScreenIcon />
           </button>
