@@ -1,20 +1,23 @@
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom"; // اضافه کردن useNavigate
+import { RoomContext } from "../../context/RoomContext";
+import PropTypes from "prop-types";
 import { PhoneIcon } from "../../../public/Phone";
 import { ChatIcon } from "../../../public/ChatIcon";
 import MicOnIcon from "../../../public/MicOn";
 import MicOffIcon from "../../../public/MicOff";
-import useCurrentTime from "../../utils/useCurrentTime";
-import PropTypes from "prop-types";
-import { useContext, useState } from "react";
-import { RoomContext } from "../../context/RoomContext";
 import ScreenIcon from "../../../public/Screen";
+import useCurrentTime from "../../utils/useCurrentTime";
 
 function Footer({ handleButton, IdUsers }) {
+  const navigate = useNavigate(); // استفاده از useNavigate
   const time = useCurrentTime();
   const { ws, stream, shareScreen } = useContext(RoomContext);
   const [isMicOn, setIsMicOn] = useState(true);
 
   const handleEndCall = () => {
     ws.emit("delete-call-request", IdUsers);
+    navigate('/');
   };
 
   const toggleMic = () => {
@@ -78,7 +81,6 @@ function Footer({ handleButton, IdUsers }) {
         </div>
       </footer>
     </div>
-
   );
 }
 
