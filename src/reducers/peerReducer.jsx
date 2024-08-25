@@ -1,4 +1,4 @@
-import { ADD_PEER, REMOVE_PEER } from "./peerActions";
+import { ADD_PEER, REMOVE_PEER } from "../reducers/peerActions";
 
 export const peersReducer = (state, action) => {
     switch (action.type) {

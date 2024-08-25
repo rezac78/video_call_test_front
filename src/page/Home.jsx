@@ -4,11 +4,10 @@ import Modal from "../components/modal";
 import { VideoPlayer } from "../components/VideoPlayer";
 
 export const Home = () => {
-  const { ws, stream, me } = useContext(RoomContext);
+  const { ws, stream } = useContext(RoomContext);
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  console.log(me);
   const createRoom = () => {
     setIsModalOpen(false);
     ws.emit("create-room", { name, phoneNumber });

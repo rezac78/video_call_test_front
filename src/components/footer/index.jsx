@@ -10,11 +10,10 @@ import ScreenIcon from "../../../public/Screen";
 
 function Footer({ handleButton, IdUsers }) {
   const time = useCurrentTime();
-  const { ws, stream, shareScreen, screenSharingId } = useContext(RoomContext);
+  const { ws, stream, shareScreen } = useContext(RoomContext);
   const [isMicOn, setIsMicOn] = useState(true);
 
   const handleEndCall = () => {
-    console.log("End Call Button Clicked, Request ID:", IdUsers);
     ws.emit("delete-call-request", IdUsers);
   };
 
@@ -27,7 +26,6 @@ function Footer({ handleButton, IdUsers }) {
       }
     }
   };
-  console.log({ screenSharingId });
   return (
     <div>
       <footer className="bg-[#202124] text-white flex flex-col sm:flex-row justify-between items-center p-4">

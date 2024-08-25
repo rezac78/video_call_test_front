@@ -17,20 +17,6 @@ export const Room = () => {
     }
   }, [id, me, ws]);
 
-  useEffect(() => {
-    if (stream) {
-      const audioTracks = stream.getAudioTracks();
-      if (audioTracks.length > 0) {
-        console.log(
-          "Audio track is present in the main stream and active:",
-          audioTracks[0].enabled
-        );
-      } else {
-        console.log("No audio track available in the main stream");
-      }
-    }
-  }, [stream]);
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

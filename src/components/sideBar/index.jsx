@@ -3,10 +3,11 @@ import { CloseIcon } from "../../../public/Close";
 import { SendIcon } from "../../../public/SendIcon";
 import PropTypes from "prop-types";
 import { RoomContext } from "../../context/RoomContext";
+import ShowChat from "../showChat";
 
 function ChatSidebar({ openModal, handleButton }) {
   const [message, setMessage] = useState("");
-  const { sendMessage } = useContext(RoomContext);
+  const { sendMessage,chat,me } = useContext(RoomContext);
   const handelSubmit = (e) => {
     e.preventDefault();
     sendMessage(message);
@@ -14,9 +15,8 @@ function ChatSidebar({ openModal, handleButton }) {
   };
   return (
     <div
-      className={`fixed top-0 right-0 w-96 h-[90%] rounded-xl bg-white my-6 text-black transform ${
-        openModal ? "-translate-x-3" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out z-50`}
+      className={`fixed top-0 right-0 w-96 h-[90%] rounded-xl bg-white my-6 text-black transform ${openModal ? "-translate-x-3" : "translate-x-full"
+        } transition-transform duration-300 ease-in-out z-50`}
     >
       <button
         className="text-black p-4 flex w-full justify-end"
@@ -25,17 +25,10 @@ function ChatSidebar({ openModal, handleButton }) {
         <CloseIcon />
       </button>
       <div className="flex flex-col h-[90%] p-4">
-        <div className="flex-1 overflow-y-auto">
-          {/* {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`p-2 my-2 rounded-lg ${
-                index % 2 === 0 ? "bg-gray-200" : "bg-gray-300"
-              }`}
-            >
-              {message}
-            </div>
-          ))} */}
+         <div className="flex-1 overflow-y-auto">
+          {chat?.messages?.map((message, index) => (
+           <ShowChat message={message} key={index} myID={me}/>
+          ))}
         </div>
         <form
           onSubmit={handelSubmit}
