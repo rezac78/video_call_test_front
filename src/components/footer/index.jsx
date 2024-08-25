@@ -23,18 +23,35 @@ function Footer({ handleButton, IdUsers }) {
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
         setIsMicOn(audioTrack.enabled);
+
+        if (!audioTrack.enabled) {
+          stream.getAudioTracks().forEach((track) => track.stop());
+        } else {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then((newStream) => {
+            const newAudioTrack = newStream.getAudioTracks()[0];
+            stream.addTrack(newAudioTrack);
+          });
+        }
       }
     }
   };
+
   return (
-    <div>
-      <footer className="bg-[#202124] text-white flex flex-col sm:flex-row justify-between items-center p-4">
-        <div className="text-left mb-4 sm:mb-0 flex-1">
-          <p>
-            {time} | {IdUsers}
-          </p>
+    <div className="relative">
+      <footer className="bg-[#202124] text-white flex flex-col sm:flex-row justify-between p-4">
+        <div className="flex justify-between items-center w-full sm:w-auto mb-4 sm:mb-0">
+          <div className="text-left flex-1">
+            <p>
+              {time} | {IdUsers}
+            </p>
+          </div>
+          <div className="flex-1 flex justify-end sm:hidden">
+            <button className="px-4 py-2" onClick={handleButton}>
+              <ChatIcon />
+            </button>
+          </div>
         </div>
-        <div className="flex justify-center gap-x-3 flex-1 mb-4 sm:mb-0">
+        <div className="flex justify-center gap-x-3 mb-4 sm:mb-0 sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2">
           <button
             className={`px-2 py-2 rounded-full bg-[#363637]`}
             onClick={toggleMic}
@@ -54,13 +71,14 @@ function Footer({ handleButton, IdUsers }) {
             <ScreenIcon />
           </button>
         </div>
-        <div className="flex space-x-2 flex-1 justify-end">
+        <div className="hidden sm:flex space-x-2 flex-1 justify-end">
           <button className="px-4 py-2" onClick={handleButton}>
             <ChatIcon />
           </button>
         </div>
       </footer>
     </div>
+
   );
 }
 

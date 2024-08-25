@@ -160,6 +160,7 @@ export const RoomProvider = ({ children }) => {
                                 shareScreen,
                                 screenSharingId,
                                 setRoomId,
+                                setStream,
                                 sendMessage,
                                 chat
                         }}

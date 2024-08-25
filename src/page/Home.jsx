@@ -23,7 +23,7 @@ export const Home = () => {
         phoneNumber={phoneNumber}
         name={name}
       />
-     <div className="w-full h-full ">
+     <div className="">
         <VideoPlayer stream={stream} className="absolute top-5 left-0 w-full h-[90%]" />
       </div>
     </div>

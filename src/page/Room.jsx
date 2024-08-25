@@ -30,7 +30,7 @@ export const Room = () => {
         }  gap-4 flex-1 p-4`}
       >
         <div className="col-span-1 lg:col-span-3 flex justify-center items-center">
-          <div className="">
+          <div className="w-full md:w-4/5">
             <VideoPlayer stream={stream} />
           </div>
         </div>
