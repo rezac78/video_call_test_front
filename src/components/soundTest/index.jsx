@@ -81,7 +81,7 @@ export const SoundTest = () => {
     };
   }, []);
   return (
-    <div className="absolute right-5">
+    <div className="fixed right-5">
       <audio ref={audioRef} />
       <canvas
         ref={canvasRef}

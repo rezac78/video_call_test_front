@@ -8,13 +8,11 @@ export const VideoPlayer = ({ stream, className }) => {
   }, [stream]);
 
   return (
-    <div className={`relative ${className}`}>
       <video
-        className="w-full h-full "
+       className={` ${className}`}
         ref={videoRef}
         autoPlay
         playsInline
       />
-    </div>
   );
 };

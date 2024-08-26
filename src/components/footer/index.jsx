@@ -40,8 +40,7 @@ function Footer({ handleButton, IdUsers }) {
   };
 
   return (
-    <div className="relative">
-      <footer className="bg-[#202124] text-white flex flex-col sm:flex-row justify-between p-4">
+      <footer className="relative w-full bg-[#202124]  text-white flex flex-col sm:flex-row justify-between p-4">
         <div className="flex justify-between items-center w-full sm:w-auto mb-4 sm:mb-0">
           <div className="text-left flex-1">
             <p>
@@ -80,7 +79,6 @@ function Footer({ handleButton, IdUsers }) {
           </button>
         </div>
       </footer>
-    </div>
   );
 }
 
