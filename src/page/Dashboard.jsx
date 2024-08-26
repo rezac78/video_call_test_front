@@ -16,8 +16,22 @@ export const Dashboard = () => {
     ws.on("new-call-request", (newRequest) => {
       setCallRequests((prevRequests) => [...prevRequests, newRequest]);
     });
+    ws.on("call-request-deleted", (deletedRequestId) => {
+      setCallRequests((prevRequests) =>
+        prevRequests.filter((request) => request.id !== deletedRequestId)
+      );
+    });
+    ws.on("update-call-request", (updatedRequest) => {
+      setCallRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === updatedRequest.id ? updatedRequest : request
+        )
+      );
+    });
     return () => {
       ws.off("new-call-request");
+      ws.off("call-request-deleted");
+      ws.off("update-call-request");
     };
   }, [ws]);
 
@@ -33,7 +47,10 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#202124] text-white p-4" style={{ direction: "rtl" }}>
+    <div
+      className="min-h-screen bg-[#202124] text-white p-4"
+      style={{ direction: "rtl" }}
+    >
       <div className="w-full max-w-7xl shadow-md rounded p-4 mt-4 mx-auto">
         <h1 className="text-2xl font-bold mb-4 text-right">داشبورد تماس‌ها</h1>
         {callRequests.length === 0 ? (
@@ -54,18 +71,15 @@ export const Dashboard = () => {
               <tbody className="bg-gray-900">
                 {callRequests.map((request, index) => (
                   <tr key={index}>
-                    <td className="px-2 py-2 text-right">
-                      {index + 1}
-                    </td>
                     <td className="px-4 py-2 text-center">
-                      {request.name}
+                      {request.inCall ? "در حال مکالمه" : "در انتظار"}
                     </td>
+                    <td className="px-2 py-2 text-right">{index + 1}</td>
+                    <td className="px-4 py-2 text-center">{request.name}</td>
                     <td className="px-4 py-2 text-center">
                       {request.phoneNumber}
                     </td>
-                    <td className="px-4 py-2 text-center">
-                      {request.id}
-                    </td>
+                    <td className="px-4 py-2 text-center">{request.id}</td>
                     <td className="px-4 py-2 text-center">
                       {new Date(request.timestamp).toLocaleDateString("fa-IR")}
                     </td>
