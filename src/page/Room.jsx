@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { RoomContext } from "../context/RoomContext";
 import { useContext, useEffect, useState } from "react";
@@ -25,23 +24,15 @@ export const Room = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#202124] relative">
       <SoundTest />
-      <div
-        className={`grid grid-cols-1 ${
-          Object.keys(peers).length === 0 ? "lg:grid-cols-2" : "lg:grid-cols-4"
-        }  gap-4 flex-1 p-4`}
-      >
-        <div className="col-span-1 lg:col-span-3 flex justify-center items-center">
-          <div className="w-full md:w-4/5">
-            <VideoPlayer stream={stream} />
+      <div className={`flex flex-grow justify-center flex-wrap gap-6 mt-5`}>
+        <div className="">
+          <VideoPlayer stream={stream} />
+        </div>
+        {Object.values(peers).map((peer, i) => (
+          <div key={i} className="bg-red-200">
+            <VideoPlayer stream={peer.stream} />
           </div>
-        </div>
-        <div className="col-span-1 flex flex-col space-y-4">
-          {Object.values(peers).map((peer, i) => (
-            <div key={i} className="w-full">
-              <VideoPlayer stream={peer.stream} />
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
       <SideBar openModal={isSidebarOpen} handleButton={toggleSidebar} />
       <Footer handleButton={toggleSidebar} IdUsers={id} />
