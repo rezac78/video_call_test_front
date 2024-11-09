@@ -1,57 +1,31 @@
 import PropTypes from "prop-types";
 
-function Modal({
-  setName,
-  isModalOpen,
-  setPhoneNumber,
-  handleConnect,
-  phoneNumber,
-  name,
-}) {
+const Modal = ({ isOpen, title, onClose, message }) => {
+  if (!isOpen) return null;
+
   return (
-    <>
-      {isModalOpen && (
-        <div className="fixed top-10 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div
-            className="bg-[#F1F3F4] p-8 rounded shadow-lg w-96"
-            style={{ direction: "rtl" }}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
+        <p className="text-gray-700 text-center mb-6">{message}</p>
+        <div className="flex justify-center">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
+            onClick={() => onClose(!isOpen)}
           >
-            <input
-              type="text"
-              placeholder="نام کاربر (اختیاری)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 mb-4 border rounded bg-[#D7D9DA] text-[#202124]"
-            />
-            <input
-              type="text"
-              placeholder="شماره تماس"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full p-3 mb-4 border rounded bg-[#D7D9DA] text-[#202124]"
-            />
-            <div className="flex justify-center">
-              <button
-                onClick={handleConnect}
-                className="w-20 bg-[#0B57D0] text-white p-2 rounded"
-              >
-                اتصال
-              </button>
-            </div>
-          </div>
+            متوجه شدم
+          </button>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
-}
+};
 
 Modal.propTypes = {
-  setName: PropTypes.func.isRequired,
-  isModalOpen: PropTypes.bool.isRequired,
-  setPhoneNumber: PropTypes.func.isRequired,
-  handleConnect: PropTypes.func.isRequired,
-  phoneNumber: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
 };
 
 export default Modal;

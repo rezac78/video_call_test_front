@@ -1,5 +1,4 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom"; // اضافه کردن useNavigate
+import { useContext, useEffect, useState } from "react";
 import { RoomContext } from "../../context/RoomContext";
 import PropTypes from "prop-types";
 import { PhoneIcon } from "../../../public/Phone";
@@ -7,40 +6,65 @@ import { ChatIcon } from "../../../public/ChatIcon";
 import MicOnIcon from "../../../public/MicOn";
 import MicOffIcon from "../../../public/MicOff";
 import ScreenIcon from "../../../public/Screen";
+import Screen from "../../../public/ScreenIcon";
+import ScreenOffIcon from "../../../public/ScreenOffIcon";
 import useCurrentTime from "../../utils/useCurrentTime";
 
-function Footer({ handleButton, IdUsers }) {
-  const navigate = useNavigate(); // استفاده از useNavigate
+function Footer({ handleButton, IdUsers, setMicrophone, microphone }) {
   const time = useCurrentTime();
-  const { ws, stream, shareScreen } = useContext(RoomContext);
-  const [isMicOn, setIsMicOn] = useState(true);
-
+  const { ws, shareScreen, stream, me, roomId } = useContext(RoomContext);
+  const [camera, setCamera] = useState(true);
+  const [screen, setScreen] = useState(true);
   const handleEndCall = () => {
     ws.emit("delete-call-request", IdUsers);
-    navigate('/');
+    window.location.href = `https://hamrahanefarda.com/login?info=${btoa(
+      encodeURIComponent(
+        JSON.stringify({
+          token: localStorage.getItem("authToken"),
+        })
+      )
+    )}`;
   };
-
-  const toggleMic = () => {
+  const toggleMicrophone = () => {
     if (stream) {
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsMicOn(audioTrack.enabled);
-
-        if (!audioTrack.enabled) {
-          stream.getAudioTracks().forEach((track) => track.stop());
-        } else {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then((newStream) => {
-            const newAudioTrack = newStream.getAudioTracks()[0];
-            stream.addTrack(newAudioTrack);
-          });
-        }
-      }
+      const audioTracks = stream.getAudioTracks();
+      audioTracks.forEach((track) => {
+        track.enabled = !track.enabled;
+        console.log(
+          `Microphone is now ${track.enabled ? "enabled" : "disabled"}`
+        );
+      });
     }
+    setMicrophone(!microphone);
+    console.log(`Microphone state is now ${!microphone}`);
   };
+
+  const toggleCamera = () => {
+    if (stream) {
+      stream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+    }
+    setCamera(!camera);
+  };
+  useEffect(() => {
+    if (me) {
+      ws.emit("update-microphone-status", {
+        peerId: me.id,
+        microphoneStatus: microphone,
+        roomId,
+      });
+      ws.emit("update-camera-status", {
+        peerId: me.id,
+        cameraStatus: camera,
+        roomId,
+      });
+    }
+  }, [microphone, camera, me, ws, roomId]);
 
   return (
-      <footer className="relative w-full bg-[#202124]  text-white flex flex-col sm:flex-row justify-between p-4">
+    <div className="relative my-10">
+      <footer className="bg-[#202124] text-white fixed bottom-0 left-0 w-full flex flex-col sm:flex-row justify-between p-4">
         <div className="flex justify-between items-center w-full sm:w-auto mb-4 sm:mb-0">
           <div className="text-left flex-1">
             <p>
@@ -55,22 +79,36 @@ function Footer({ handleButton, IdUsers }) {
         </div>
         <div className="flex justify-center gap-x-3 mb-4 sm:mb-0 sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2">
           <button
-            className={`px-2 py-2 rounded-full bg-[#363637]`}
-            onClick={toggleMic}
+            className={`px-2 py-2 rounded-full ${
+              microphone ? "bg-[#363637]" : "bg-[#EA4335]"
+            } `}
+            onClick={toggleMicrophone}
           >
-            {isMicOn ? <MicOnIcon /> : <MicOffIcon />}
+            {microphone ? <MicOnIcon /> : <MicOffIcon />}
+          </button>
+          <button
+            className={`px-2 py-2 rounded-full  ${
+              camera ? "bg-[#363637]" : "bg-[#EA4335]"
+            }`}
+            onClick={toggleCamera}
+          >
+            {camera ? <Screen /> : <ScreenOffIcon />}
+          </button>
+          <button
+            className={`px-2 py-2 rounded-full ${
+              screen ? "bg-[#363637]" : "bg-[#8AB4F8]"
+            }`}
+            onClick={() => {
+              shareScreen(), setScreen(!screen);
+            }}
+          >
+            <ScreenIcon />
           </button>
           <button
             className="px-4 py-2 rounded-full bg-[#EA4335]"
             onClick={handleEndCall}
           >
             <PhoneIcon />
-          </button>
-          <button
-            className="px-2 py-2 rounded-full bg-[#363637]"
-            onClick={shareScreen}
-          >
-            <ScreenIcon />
           </button>
         </div>
         <div className="hidden sm:flex space-x-2 flex-1 justify-end">
@@ -79,12 +117,15 @@ function Footer({ handleButton, IdUsers }) {
           </button>
         </div>
       </footer>
+    </div>
   );
 }
 
 Footer.propTypes = {
   IdUsers: PropTypes.string.isRequired,
+  microphone: PropTypes.bool.isRequired,
   handleButton: PropTypes.func.isRequired,
+  setMicrophone: PropTypes.func.isRequired,
 };
 
 export default Footer;

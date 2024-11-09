@@ -11,4 +11,4 @@ export const VideoChat = ({ stream, peers }) => {
     muted={true}
     className="w-full h-auto max-h-[70vh] "
   />
-}
+} 

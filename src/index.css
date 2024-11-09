@@ -9,3 +9,25 @@
 * {
     font-family: var(--iransansfont), serif !important;
 }
+
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #202124;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #363637; 
+    border-radius: 10px; 
+    border: 2px solid #202124; 
+}
+
+* {
+    scrollbar-width: thin;
+}
+html {
+    scroll-behavior: smooth;
+}

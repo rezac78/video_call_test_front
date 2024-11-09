@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export const VideoPlayer = ({ stream, className }) => {
+export const VideoPlayer = ({ stream }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -8,11 +8,6 @@ export const VideoPlayer = ({ stream, className }) => {
   }, [stream]);
 
   return (
-    <video
-      className="h-full w-full rounded-lg"
-      ref={videoRef}
-      autoPlay
-      playsInline
-    />
+    <video className="w-full h-full" ref={videoRef} autoPlay playsInline muted />
   );
 };

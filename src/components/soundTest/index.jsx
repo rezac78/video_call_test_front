@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 
-export const SoundTest = () => {
+export const SoundTest = ({ microphone }) => {
   const audioRef = useRef(null);
   const canvasRef = useRef(null);
   const analyserRef = useRef(null);
   const startTest = () => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      .getUserMedia({ audio: microphone })
       .then((stream) => {
         const audioContext = new (window.AudioContext ||
           window.webkitAudioContext)();
@@ -34,7 +34,6 @@ export const SoundTest = () => {
       audioElement.srcObject = null;
     }
   };
-
   const drawWaveform = () => {
     if (!analyserRef.current) return;
 
@@ -44,34 +43,34 @@ export const SoundTest = () => {
     const dataArray = new Uint8Array(bufferLength);
 
     const draw = () => {
-        requestAnimationFrame(draw);
-        analyserRef.current.getByteTimeDomainData(dataArray);
-        canvasCtx.fillStyle = "#1A73E8";
-        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-        canvasCtx.lineWidth = 1;
-        canvasCtx.strokeStyle = "#FFFFFF";
-        canvasCtx.beginPath();
-        const sliceWidth = (canvas.width * 1.0) / bufferLength;
-        let x = 0;
-  
-        for (let i = 0; i < bufferLength; i++) {
-          const v = dataArray[i] / 128.0;
-          const y = (v * canvas.height) / 2;
-  
-          if (i === 0) {
-            canvasCtx.moveTo(x, y);
-          } else {
-            canvasCtx.lineTo(x, y);
-          }
-  
-          x += sliceWidth;
+      requestAnimationFrame(draw);
+      analyserRef.current.getByteTimeDomainData(dataArray);
+      canvasCtx.fillStyle = "#1A73E8";
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.lineWidth = 1;
+      canvasCtx.strokeStyle = "#FFFFFF";
+      canvasCtx.beginPath();
+      const sliceWidth = (canvas.width * 1.0) / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+
+        if (i === 0) {
+          canvasCtx.moveTo(x, y);
+        } else {
+          canvasCtx.lineTo(x, y);
         }
-        canvasCtx.lineTo(canvas.width, canvas.height / 2);
-        canvasCtx.stroke();
-      };
-  
-      draw();
+
+        x += sliceWidth;
+      }
+      canvasCtx.lineTo(canvas.width, canvas.height / 2);
+      canvasCtx.stroke();
     };
+
+    draw();
+  };
 
   useEffect(() => {
     startTest();
@@ -79,9 +78,10 @@ export const SoundTest = () => {
     return () => {
       stopTest();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [microphone]);
   return (
-    <div className="fixed right-5">
+    <div className="absolute right-5">
       <audio ref={audioRef} />
       <canvas
         ref={canvasRef}

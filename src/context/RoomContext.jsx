@@ -1,12 +1,13 @@
 import { createContext, useEffect, useState, useReducer } from "react";
+import PropTypes from "prop-types";
 import socketIO from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import Peer from "peerjs";
 import { v4 as uuidV4 } from "uuid";
 import { peersReducer } from "../reducers/peerReducer";
+import { SOCKET_URL } from "../config-global";
 import { chatReducer } from "../reducers/chatReducer";
 import { addPeerAction, removePeerAction } from "../reducers/peerActions";
-import { SOCKET_URL } from "../config-global";
 import { addHistoryAction, addMessageAction } from "../reducers/chatActions";
 
 const WS = SOCKET_URL;
@@ -17,20 +18,21 @@ const ws = socketIO(WS);
 export const RoomProvider = ({ children }) => {
   const navigate = useNavigate();
   const [me, setMe] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [stream, setStream] = useState(null);
   const [peers, dispatch] = useReducer(peersReducer, {});
   const [chat, chatDispatch] = useReducer(chatReducer, {
     messages: [],
   });
-
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("authToken")
+  );
   const [screenSharingId, setScreenSharingId] = useState("");
   const [roomId, setRoomId] = useState("");
 
   const enterRoom = ({ roomId }) => {
-    setRoomId(roomId);
     navigate(`/room/${roomId}`);
   };
-
   const getUsers = ({ participants }) => {
     console.log({ participants });
   };
@@ -38,13 +40,38 @@ export const RoomProvider = ({ children }) => {
   const removePeer = (peerId) => {
     dispatch(removePeerAction(peerId));
   };
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsAuthenticated(!!localStorage.getItem("authToken"));
+    };
 
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+  useEffect(() => {
+    const getMedia = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        setStream(mediaStream);
+      } catch (error) {
+        console.error("Error accessing media devices:", error);
+        setIsModalOpen(true);
+      }
+    };
+
+    getMedia();
+  }, []);
   useEffect(() => {
     const meId = uuidV4();
     const peer = new Peer(meId.substring(0, 12));
 
-    peer.on("open", (id) => {
-      console.log(id);
+    peer.on("open", () => {
       setMe(peer);
     });
 
@@ -78,6 +105,7 @@ export const RoomProvider = ({ children }) => {
       ws.off("user-joined");
       ws.off("add-message");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const switchStream = (stream) => {
@@ -149,7 +177,6 @@ export const RoomProvider = ({ children }) => {
       me.off("call");
     };
   }, [me, stream]);
-
   return (
     <RoomContext.Provider
       value={{
@@ -163,9 +190,16 @@ export const RoomProvider = ({ children }) => {
         setStream,
         sendMessage,
         chat,
+        isModalOpen,
+        setIsModalOpen,
+        isAuthenticated,
+        setIsAuthenticated,
       }}
     >
       {children}
     </RoomContext.Provider>
   );
+};
+RoomProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

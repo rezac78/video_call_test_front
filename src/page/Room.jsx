@@ -1,41 +1,106 @@
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { RoomContext } from "../context/RoomContext";
 import { useContext, useEffect, useState } from "react";
 import SideBar from "../components/sideBar";
 import Footer from "../components/footer";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { SoundTest } from "../components/soundTest";
+import Modal from "../components/modal";
 
 export const Room = () => {
-  const { id } = useParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { ws, me, stream, peers } = useContext(RoomContext);
+  const [userName, setUserName] = useState("");
+  const [microphone, setMicrophone] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const {
+    ws,
+    me,
+    stream,
+    peers,
+    screenSharingId,
+    setRoomId,
+    isModalOpen,
+    setIsModalOpen,
+  } = useContext(RoomContext);
+  const { id } = useParams();
+  const location = useLocation();
+  const { state } = location;
 
   useEffect(() => {
+    ws.on("error", (message) => {
+      setErrorMessage(message);
+    });
+    return () => {
+      ws.off("error");
+    };
+  }, [ws]);
+
+  useEffect(() => {
+    ws.emit("get-call-requests", (data) => {
+      setUserName(data);
+    });
     if (me) {
-      ws.emit("join-room", { roomId: id, peerId: me._id });
+      ws.emit("join-room", { roomId: id, peerId: me.id });
     }
-  }, [id, me, ws]);
+    setRoomId(id);
+  }, [id, me, ws, setRoomId]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const screenSharingVideo =
+    screenSharingId === me?.id ? stream : peers[screenSharingId]?.stream;
+  const { [screenSharingId]: sharing, ...peersToShow } = peers;
+
+  if (errorMessage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#202124] text-white">
+        <h1 className="text-2xl">{errorMessage}</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#202124] relative">
-      <SoundTest />
-      <div className={`flex flex-grow justify-center flex-wrap gap-6 mt-5`}>
-        <div className="">
-          <VideoPlayer stream={stream} />
-        </div>
-        {Object.values(peers).map((peer, i) => (
-          <div key={i} className="bg-red-200">
-            <VideoPlayer stream={peer.stream} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={setIsModalOpen}
+        title="دسترسی رد شد"
+        message="مرورگر شما اجازه دسترسی به میکروفون و دوربین را ندارد بررسی کنید"
+      />
+      <SoundTest microphone={microphone} />
+      <div className="flex justify-center gap-6 my-6">
+        {screenSharingVideo && (
+          <div className="w-3/5 pr-4">
+            <VideoPlayer stream={screenSharingVideo} />
           </div>
-        ))}
+        )}
       </div>
-      <SideBar openModal={isSidebarOpen} handleButton={toggleSidebar} />
-      <Footer handleButton={toggleSidebar} IdUsers={id} />
+      <div className="flex flex-wrap justify-center flex-grow gap-6 my-6">
+        <div className="">
+          {screenSharingId !== me?.id && <VideoPlayer stream={stream} />}
+        </div>
+        {Object.values(peersToShow).map(
+          (peer, i) =>
+            peer.stream.id !== stream.id && (
+              <div className="" key={i}>
+                <VideoPlayer stream={peer.stream} />
+              </div>
+            )
+        )}
+      </div>
+      <SideBar
+        userName={userName[0]?.name || ""}
+        admin={state}
+        openModal={isSidebarOpen}
+        handleButton={toggleSidebar}
+      />
+      <Footer
+        microphone={microphone}
+        setMicrophone={setMicrophone}
+        handleButton={toggleSidebar}
+        IdUsers={id}
+      />
     </div>
   );
 };

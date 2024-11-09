@@ -5,13 +5,16 @@ import PropTypes from "prop-types";
 import { RoomContext } from "../../context/RoomContext";
 import ShowChat from "../showChat";
 
-function ChatSidebar({ openModal, handleButton }) {
+function ChatSidebar({ openModal, handleButton, userName, admin }) {
   const [message, setMessage] = useState("");
-  const { sendMessage,chat,me } = useContext(RoomContext);
+  const { sendMessage, chat, me } = useContext(RoomContext);
   const handelSubmit = (e) => {
     e.preventDefault();
+    if (message.trim() === "") {
+      return;
+    }
     sendMessage(message);
-    setMessage("")
+    setMessage("");
   };
   return (
     <div
@@ -25,9 +28,15 @@ function ChatSidebar({ openModal, handleButton }) {
         <CloseIcon />
       </button>
       <div className="flex flex-col h-[90%] p-4">
-         <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pr-2 ">
           {chat?.messages?.map((message, index) => (
-           <ShowChat message={message} key={index} myID={me}/>
+            <ShowChat
+              userName={userName}
+              admin={admin}
+              message={message}
+              key={index}
+              myID={me}
+            />
           ))}
         </div>
         <form
@@ -44,11 +53,6 @@ function ChatSidebar({ openModal, handleButton }) {
             placeholder="نوشتن پیام ....."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                sendMessage();
-              }
-            }}
           />
         </form>
       </div>
@@ -58,5 +62,11 @@ function ChatSidebar({ openModal, handleButton }) {
 ChatSidebar.propTypes = {
   openModal: PropTypes.bool.isRequired,
   handleButton: PropTypes.func.isRequired,
+  userName: PropTypes.string.isRequired,
+  admin: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.oneOf([null])
+  ]).isRequired,
 };
+
 export default ChatSidebar;
