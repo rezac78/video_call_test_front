@@ -11,7 +11,7 @@ import  Login  from "./page/login.jsx";
 const isAuthenticated = !!localStorage.getItem("authToken");
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
+  <>
     <RoomProvider>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -36,5 +36,5 @@ createRoot(document.getElementById("root")).render(
         />
       </Routes>
     </RoomProvider>
-  </BrowserRouter>
+  </>
 );
