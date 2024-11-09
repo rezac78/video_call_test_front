@@ -6,12 +6,12 @@ import { Home } from "./page/Home.jsx";
 import { Room } from "./page/Room.jsx";
 import { Dashboard } from "./page/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute";
-import  Login  from "./page/login.jsx";
+import Login from "./page/login.jsx";
 
 const isAuthenticated = !!localStorage.getItem("authToken");
 
 createRoot(document.getElementById("root")).render(
-  <>
+  <BrowserRouter>
     <RoomProvider>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -36,5 +36,5 @@ createRoot(document.getElementById("root")).render(
         />
       </Routes>
     </RoomProvider>
-  </>
+  </BrowserRouter>
 );
