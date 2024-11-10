@@ -74,8 +74,11 @@ export const RoomProvider = ({ children }) => {
   }, []);
   useEffect(() => {
     const meId = uuidV4();
-    const peer = new Peer(meId.substring(0, 12));
-
+    const peer = new Peer(meId.substring(0, 12), {
+      host: "video-call-test-back.onrender.com",
+      port: 443,
+      secure: true,
+    });
     peer.on("open", () => {
       console.log("Peer opened with ID:", meId);
       setMe(peer);
