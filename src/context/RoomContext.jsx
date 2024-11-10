@@ -13,8 +13,23 @@ import { addHistoryAction, addMessageAction } from "../reducers/chatActions";
 const WS = SOCKET_URL;
 export const RoomContext = createContext(null);
 
-const ws = socketIO(WS);
+const ws = socketIO(WS, {
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+  timeout: 5000,
+  autoConnect: true,
+});
+ws.on("connect", () => {
+  console.log("Socket connected:", ws.id);
+});
 
+ws.on("disconnect", (reason) => {
+  console.log("Socket disconnected:", reason);
+});
+
+ws.on("connect_error", (error) => {
+  console.log("Connection error:", error);
+});
 export const RoomProvider = ({ children }) => {
   const navigate = useNavigate();
   const [me, setMe] = useState(null);
@@ -73,8 +88,33 @@ export const RoomProvider = ({ children }) => {
     getMedia();
   }, []);
   useEffect(() => {
-    const meId = uuidV4();
-    const peer = new Peer(meId.substring(0, 12));
+    const createPeerConnection = (id) => {
+      const peer = new Peer(id);
+
+      peer.on("open", () => {
+        console.log("Peer connection established with ID:", peer.id);
+      });
+
+      peer.on("disconnected", () => {
+        console.log("Peer disconnected. Attempting to reconnect...");
+        peer.reconnect(); // تلاش برای اتصال مجدد
+      });
+
+      peer.on("close", () => {
+        console.log("Peer connection closed.");
+        setTimeout(() => {
+          createPeerConnection(id);
+        }, 3000); //
+      });
+
+      peer.on("error", (err) => {
+        console.error("PeerJS connection error:", err);
+      });
+
+      return peer;
+    };
+    const meId = uuidV4().substring(0, 12);
+    const peer = createPeerConnection(meId);
 
     peer.on("open", () => {
       console.log("Peer opened with ID:", meId);
