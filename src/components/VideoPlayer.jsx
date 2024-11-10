@@ -4,7 +4,10 @@ export const VideoPlayer = ({ stream }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (videoRef.current) videoRef.current.srcObject = stream;
+    if (videoRef.current) {
+      console.log("Setting video stream:", stream);
+      videoRef.current.srcObject = stream;
+    }
   }, [stream]);
 
   return (

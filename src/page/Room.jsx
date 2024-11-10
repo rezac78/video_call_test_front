@@ -28,6 +28,7 @@ export const Room = () => {
 
   useEffect(() => {
     ws.on("error", (message) => {
+      console.log("Error received from server:", message);
       setErrorMessage(message);
     });
     return () => {
@@ -36,16 +37,20 @@ export const Room = () => {
   }, [ws]);
 
   useEffect(() => {
+    console.log("Requesting call requests...");
     ws.emit("get-call-requests", (data) => {
+      console.log("Call requests data:", data);
       setUserName(data);
     });
     if (me) {
+      console.log("Joining room:", id, "with peerId:", me.id);
       ws.emit("join-room", { roomId: id, peerId: me.id });
     }
     setRoomId(id);
   }, [id, me, ws, setRoomId]);
 
   const toggleSidebar = () => {
+    console.log("Toggling sidebar. Is open:", !isSidebarOpen);
     setIsSidebarOpen(!isSidebarOpen);
   };
   const screenSharingVideo =

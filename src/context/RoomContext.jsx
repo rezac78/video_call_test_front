@@ -31,6 +31,7 @@ export const RoomProvider = ({ children }) => {
   const [roomId, setRoomId] = useState("");
 
   const enterRoom = ({ roomId }) => {
+    console.log("Entering room:", roomId);
     navigate(`/room/${roomId}`);
   };
   const getUsers = ({ participants }) => {
@@ -38,11 +39,13 @@ export const RoomProvider = ({ children }) => {
   };
 
   const removePeer = (peerId) => {
+    console.log("Removing peer with id:", peerId);
     dispatch(removePeerAction(peerId));
   };
   useEffect(() => {
     const handleStorageChange = () => {
       setIsAuthenticated(!!localStorage.getItem("authToken"));
+      console.log("Auth state changed, isAuthenticated:", isAuthenticated);
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -54,10 +57,12 @@ export const RoomProvider = ({ children }) => {
   useEffect(() => {
     const getMedia = async () => {
       try {
+        console.log("Attempting to access media devices...");
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
+        console.log("Media stream acquired:", mediaStream);
         setStream(mediaStream);
       } catch (error) {
         console.error("Error accessing media devices:", error);
@@ -72,6 +77,7 @@ export const RoomProvider = ({ children }) => {
     const peer = new Peer(meId.substring(0, 12));
 
     peer.on("open", () => {
+      console.log("Peer opened with ID:", meId);
       setMe(peer);
     });
 
@@ -83,6 +89,7 @@ export const RoomProvider = ({ children }) => {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((stream) => {
+          console.log("User media stream:", stream);
           setStream(stream);
         });
     } catch (error) {
@@ -92,7 +99,10 @@ export const RoomProvider = ({ children }) => {
     ws.on("room-created", enterRoom);
     ws.on("get-users", getUsers);
     ws.on("user-disconnected", removePeer);
-    ws.on("user-started-screen", (peerId) => setScreenSharingId(peerId));
+    ws.on("user-started-screen", (peerId) => {
+      console.log("User started screen sharing:", peerId);
+      setScreenSharingId(peerId);
+    });
     ws.on("user-stopped-screen", () => setScreenSharingId(""));
     ws.on("add-message", addMessage);
     ws.on("get-messages", addHistory);
@@ -109,6 +119,7 @@ export const RoomProvider = ({ children }) => {
   }, []);
 
   const switchStream = (stream) => {
+    console.log("Switching stream:", stream);
     setStream(stream);
     setScreenSharingId(me?.id || "");
     Object.values(me?.connections).forEach((connection) => {
